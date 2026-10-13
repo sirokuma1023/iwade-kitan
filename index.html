@@ -51,13 +51,13 @@ button{font:inherit;cursor:pointer}
 }
 @media (prefers-reduced-motion:reduce){#game.shaking,#onomatopoeia.active,#noise-overlay.active{animation:none}}
 
-/* Dialogue blocking: half-body portraits, Naoto left / Maki right. */
-#sprite-wrap{right:0;left:auto;bottom:22%;width:min(75vw,510px);height:min(62svh,590px);overflow:hidden;transition:left .22s ease,right .22s ease}
-#sprite-wrap.left{left:-4%;right:auto}
-#sprite-wrap.right{right:-4%;left:auto}
-#sprite{left:50%;right:auto;top:0;bottom:auto;width:132%;height:132%;max-width:none;object-fit:contain;object-position:center top;transform:translateX(-50%);transform-origin:top center}
-#sprite.hidden{opacity:0;transform:translateX(-50%) translateY(14px)}
-@media(max-width:650px){#sprite-wrap{bottom:24%;width:82vw;height:61svh}#sprite-wrap.left{left:-12%;right:auto}#sprite-wrap.right{right:-12%;left:auto}#sprite{width:135%;height:135%}}
+/* Consistent waist-up dialogue portraits; Naoto left, Maki right. */
+#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(218px,32svh,300px) - 5px);width:min(57vw,430px);height:min(55svh,520px);overflow:hidden;pointer-events:none;z-index:2;transition:left .22s ease,right .22s ease}
+#sprite-wrap.left{left:0;right:auto}
+#sprite-wrap.right{right:0;left:auto}
+#sprite{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 16%;transform:none;filter:drop-shadow(0 14px 20px #0009);transition:opacity .16s}
+#sprite.hidden{opacity:0;transform:translateY(12px)}
+@media(max-width:650px){#sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + 218px);width:64vw;height:51svh}#sprite-wrap.left{left:0;right:auto}#sprite-wrap.right{right:0;left:auto}}
 </style>
 </head>
 <body>
