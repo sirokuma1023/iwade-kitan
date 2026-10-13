@@ -51,13 +51,13 @@ button{font:inherit;cursor:pointer}
 }
 @media (prefers-reduced-motion:reduce){#game.shaking,#onomatopoeia.active,#noise-overlay.active{animation:none}}
 
-/* Consistent waist-up dialogue portraits; Naoto left, Maki right. */
-#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(218px,32svh,300px) - 5px);width:min(57vw,430px);height:min(55svh,520px);overflow:hidden;pointer-events:none;z-index:2;transition:left .22s ease,right .22s ease}
+/* Sprite geometry: subject bounds are normalized per expression (no whole-body view). */
+#sprite-wrap{position:absolute;top:12svh;bottom:auto;width:100%;height:calc(88svh - clamp(225px,32svh,300px));pointer-events:none;overflow:hidden;z-index:2}
 #sprite-wrap.left{left:0;right:auto}
 #sprite-wrap.right{right:0;left:auto}
-#sprite{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 16%;transform:none;filter:drop-shadow(0 14px 20px #0009);transition:opacity .16s}
-#sprite.hidden{opacity:0;transform:translateY(12px)}
-@media(max-width:650px){#sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + 218px);width:64vw;height:51svh}#sprite-wrap.left{left:0;right:auto}#sprite-wrap.right{right:0;left:auto}}
+#sprite{position:absolute;top:0;left:0;right:auto;bottom:auto;width:auto;height:auto;max-width:none;object-fit:initial;object-position:initial;transform:none;filter:drop-shadow(0 12px 14px #0008);transition:opacity .16s}
+#sprite.hidden{opacity:0}
+@media(max-width:650px){#sprite-wrap{top:12svh;height:calc(88svh - 225px)}}
 </style>
 </head>
 <body>
@@ -83,14 +83,14 @@ button{font:inherit;cursor:pointer}
   <div id="box">
     <div id="name"></div>
     <div id="dialogue"></div>
-    <div id="counter"></div>
+    
     <div id="next">▼ TAP</div>
   </div>
   <div id="intro" class="intro">
     <p class="subtitle">ビジュアルノベル試作・完成脚本チェック版</p>
     <h1>岩出奇譚</h1>
     <p>第一章　コピー紙を切る女</p>
-    <p>HTMLを開いた時点でタイトルBGMが自動再生されます</p>
+    
     <button id="play">はじめる</button>
     <div class="credit">BGM / SE / Sprite review build</div>
   </div>
@@ -153,7 +153,36 @@ function typeLine(line,ms=0){ cancelTyping(); const epoch=typingEpoch; dialog.te
 function showAll(){ const s=SCENES[i]; cancelTyping(); dialog.textContent=s.line; textDone=true; nextMarker.style.opacity='1'; }
 function showOnomatopoeia(text){ const el=document.getElementById('onomatopoeia'); el.textContent=text; el.classList.remove('active'); void el.offsetWidth; el.classList.add('active'); }
 function playEffect(effect){ clearEffects(); stopSE(); if(effect==='paper-cut'){ playSE('paper'); } else if(effect==='boom'){ document.getElementById('game').classList.add('shaking'); document.getElementById('flash').classList.remove('boom'); void document.getElementById('flash').offsetWidth; document.getElementById('flash').classList.add('boom'); impactSE(); showOnomatopoeia('！！！'); } else if(effect==='pop'){ popSE(); } else if(effect==='quirk'){ comicSE(); } else if(effect==='clang'){ playSE('clang'); } else if(effect==='missing'){ missingSE(); } }
-function render(){ const s=SCENES[i]; if(s.bg!==lastBg){ bg.style.backgroundImage=`url('${BG[s.bg]}')`; lastBg=s.bg; } nameE.textContent=s.speaker||''; document.getElementById('counter').textContent=`${String(i+1).padStart(2,'0')} / ${SCENES.length}`; const wrap=document.getElementById('sprite-wrap'); wrap.classList.toggle('left',s.person==='naoto'); wrap.classList.toggle('right',s.person==='maki'); if(s.person==='none'){ sprite.classList.add('hidden'); sprite.removeAttribute('src'); } else { sprite.src=EXPRESSIONS[s.expression]; sprite.alt=s.speaker; sprite.classList.remove('hidden'); } const typingSpeed=s.speed===undefined?30:s.speed; typeLine(s.line, typingSpeed); playEffect(s.effect); const delay = s.effect==='paper-cut' ? 1000 : s.effect==='boom' ? 1200 : s.effect==='quirk' ? 700 : s.effect==='clang' ? 1500 : s.effect==='missing' ? 1200 : 0; bgm(s.music, delay); }
+
+// Source image alpha extents (all sprites 540x720); normalized to a common waist-up viewport.
+// Each face starts at the same height, and the navel is hidden behind the dialogue panel.
+const PORTRAIT_BOUNDS={
+maki_normal:[97,17,443,455],maki_happy:[50,174,501,708],
+maki_bashful:[75,41,466,708],maki_serious:[42,29,518,698],
+maki_thinking:[171,15,502,693],maki_angry:[0,157,485,712],
+naoto_normal:[7,153,532,708],naoto_bashful:[7,158,532,708],
+naoto_surprised:[7,159,532,708],naoto_thinking:[50,158,532,708],
+naoto_troubled:[7,153,532,708],naoto_wry:[34,160,519,708]
+};
+function layoutPortrait(expression, side){
+ const b=PORTRAIT_BOUNDS[expression]||[30,50,510,710];
+ const region=document.getElementById('sprite-wrap');
+ const rw=region.clientWidth,rh=region.clientHeight;
+ const visibleW=b[2]-b[0], visibleH=b[3]-b[1];
+ const targetHeight=rh*.96;
+ const targetWidth=Math.min(rw*.69, 340);
+ const scale=Math.min(targetHeight/visibleH,targetWidth/visibleW);
+ const imageW=540*scale,imageH=720*scale;
+ // Keep body fully within screen margins; only the figure's bottom hides at textbox edge.
+ const left=(side==='left'? Math.max(4,rw*.02) : Math.min(rw-visibleW*scale-4,rw*.98-visibleW*scale))-b[0]*scale;
+ const top=Math.max(0,(rh-visibleH*scale)*.16)-b[1]*scale;
+ sprite.style.width=imageW+'px';
+ sprite.style.height=imageH+'px';
+ sprite.style.left=left+'px';
+ sprite.style.top=top+'px';
+}
+window.addEventListener('resize',()=>{if(started&&SCENES[i].person!=='none')layoutPortrait(SCENES[i].expression,SCENES[i].person==='naoto'?'left':'right')});
+function render(){ const s=SCENES[i]; if(s.bg!==lastBg){ bg.style.backgroundImage=`url('${BG[s.bg]}')`; lastBg=s.bg; } nameE.textContent=s.speaker||''; const wrap=document.getElementById('sprite-wrap'); wrap.classList.toggle('left',s.person==='naoto'); wrap.classList.toggle('right',s.person==='maki'); if(s.person==='none'){ sprite.classList.add('hidden'); sprite.removeAttribute('src'); } else { sprite.src=EXPRESSIONS[s.expression]; sprite.alt=s.speaker; layoutPortrait(s.expression,s.person==='naoto'?'left':'right'); sprite.classList.remove('hidden'); } const typingSpeed=s.speed===undefined?30:s.speed; typeLine(s.line, typingSpeed); playEffect(s.effect); const delay = s.effect==='paper-cut' ? 1000 : s.effect==='boom' ? 1200 : s.effect==='quirk' ? 700 : s.effect==='clang' ? 1500 : s.effect==='missing' ? 1200 : 0; bgm(s.music, delay); }
 function next(){ wakeAudio(); if(!started){ start(); return; } if(!textDone){ showAll(); return; } if(i<SCENES.length-1){ i++; render(); } else { intro.style.display='flex'; started=false; i=0; cancelTyping(); tryTitleAutoplay(); } }
 function previous(){ if(started && i>0){ i--; render(); } }
 function stopTitleMusicNow(){
