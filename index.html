@@ -18,12 +18,12 @@ button{font:inherit;cursor:pointer}
 #controls{display:flex;gap:6px;align-items:center}
 #controls button,.intro button{border:1px solid #ffffff66;border-radius:8px;background:rgba(12,18,25,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;padding:8px 11px}
 #hint{display:none}
-#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(198px,28svh,248px));width:100%;height:min(56svh,510px);pointer-events:none;z-index:2}
+#sprite-wrap{position:absolute;bottom:var(--portrait-bottom, 260px);width:100%;height:min(56svh,510px);pointer-events:none;z-index:2}
 .portrait{position:absolute;bottom:0;height:100%;width:auto;max-width:58%;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55));display:none}
 #sprite-left{left:0}
 #sprite-right{right:0}
 .portrait.active{display:block}
-#box{position:absolute;left:clamp(8px,1.6vw,22px);right:clamp(8px,1.6vw,22px);bottom:calc(env(safe-area-inset-bottom) + 12px);min-height:clamp(245px,35svh,325px);padding:22px 22px 16px;border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 36px rgba(0,0,0,.55);display:flex;flex-direction:column;cursor:pointer}
+#box{position:absolute;left:clamp(8px,1.6vw,22px);right:clamp(8px,1.6vw,22px);bottom:calc(env(safe-area-inset-bottom) + 12px);min-height:clamp(245px,35svh,325px);padding:22px 22px 16px;border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-bg);z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 36px rgba(0,0,0,.55);display:flex;flex-direction:column;cursor:pointer}
 #name{font-size:17px;font-weight:800;letter-spacing:.08em;color:var(--gold);min-height:26px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 #dialogue{margin-top:12px;flex:1;max-width:980px;white-space:pre-line;font-size:clamp(17px,2.7vw,22px);font-weight:500;line-height:1.9;color:var(--text);text-shadow:0 2px 10px var(--shadow)}
 #counter{display:none}
@@ -48,7 +48,7 @@ button{font:inherit;cursor:pointer}
 #game.shaking{animation:screen-shake .48s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes screen-shake{0%,100%{transform:translate(0,0)}10%{transform:translate(-8px,4px)}20%{transform:translate(9px,-5px)}30%{transform:translate(-10px,3px)}40%{transform:translate(8px,5px)}50%{transform:translate(-6px,-4px)}60%{transform:translate(6px,2px)}75%{transform:translate(-3px,2px)}90%{transform:translate(2px,-1px)}}
 @media (max-width:650px){
-  #sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + clamp(203px,28svh,251px));height:min(51svh,440px)}
+  #sprite-wrap{bottom:var(--portrait-bottom, 260px);height:min(51svh,440px)}
   .portrait{max-width:64%}
   #box{min-height:245px;padding:20px 18px 16px}
   #dialogue{line-height:1.82}
@@ -121,6 +121,20 @@ const SCENES=[{"bg": "festival", "speaker": "マキ", "line": "研ぎ上げた�
 const bg=document.getElementById('bg');
 const spriteLeft=document.getElementById('sprite-left');
 const spriteRight=document.getElementById('sprite-right');
+// Align the bottom of both character portraits to the actual dialogue window top,
+// independent of device height or browser safe-area insets.
+const gameElement=document.getElementById('game');
+const dialogueBox=document.getElementById('box');
+function alignSpritesToDialogue(){
+ const gameRect=gameElement.getBoundingClientRect();
+ const boxRect=dialogueBox.getBoundingClientRect();
+ const bottom=Math.max(0,gameRect.bottom-boxRect.top-12);
+ gameElement.style.setProperty('--portrait-bottom',bottom+'px');
+}
+alignSpritesToDialogue();
+window.addEventListener('resize',alignSpritesToDialogue);
+if(window.ResizeObserver){new ResizeObserver(alignSpritesToDialogue).observe(dialogueBox);}
+
 const nameE=document.getElementById('name');
 const dialog=document.getElementById('dialogue');
 const intro=document.getElementById('intro');
