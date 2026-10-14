@@ -22,7 +22,7 @@ button{font:inherit;cursor:pointer}
 .portrait{position:absolute;bottom:0;height:100%;width:auto;max-width:58%;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55));display:none}
 #sprite-left{left:0}
 #sprite-right{right:0}
-#sprite-right.iwade-host{right:50%;transform:translateX(50%);max-width:82%;height:100%}
+#sprite-right.iwade-host{right:50%;left:auto;transform:translateX(50%);max-width:none;height:132%;width:auto;object-fit:contain;object-position:bottom center}
 .portrait.active{display:block}
 #box{position:absolute;left:clamp(8px,1.6vw,22px);right:clamp(8px,1.6vw,22px);bottom:calc(env(safe-area-inset-bottom) + 12px);min-height:clamp(245px,35svh,325px);padding:22px 22px 16px;border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-bg);z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 36px rgba(0,0,0,.55);display:flex;flex-direction:column;cursor:pointer}
 #name{font-size:17px;font-weight:800;letter-spacing:.08em;color:var(--gold);min-height:26px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
@@ -64,6 +64,7 @@ button{font:inherit;cursor:pointer}
 #backlog[hidden]{display:none}#backlog{position:absolute;inset:0;z-index:30;background:rgba(7,11,16,.97);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 17px) 18px calc(env(safe-area-inset-bottom) + 18px)}.log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;font-size:18px}.log-head button{color:white;background:#273444;border:1px solid #8994a1;border-radius:7px;padding:8px 14px}#log-items{overflow-y:auto;overscroll-behavior:contain;flex:1}.log-entry{border-bottom:1px solid #44505b;padding:12px 4px;white-space:pre-line;line-height:1.7}.log-entry strong{display:block;color:var(--gold);margin-bottom:4px}#auto[aria-pressed="true"]{border-color:var(--gold)!important;color:var(--gold)!important}@media(max-width:650px){#controls{gap:3px}#controls button{padding:7px 6px;font-size:12px}#brand{font-size:13px;letter-spacing:.04em}}
 .title-catchcopy{margin:16px 0 4px;max-width:95%;font-size:clamp(13px,3.5vw,17px);line-height:1.65;letter-spacing:.035em;color:#f5f1e7;text-shadow:0 2px 7px #000}.title-catchcopy p{margin:0 0 10px}.title-catchcopy p:last-child{margin-bottom:0}
 #dialogue.narration{font-weight:400;letter-spacing:.015em}#name:empty{display:none}
+@media(max-width:650px){#sprite-right.iwade-host{height:126%;max-width:none}}
 </style>
 </head>
 <body>
