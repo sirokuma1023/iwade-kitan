@@ -18,7 +18,7 @@ button{font:inherit;cursor:pointer}
 #controls{display:flex;gap:6px;align-items:center}
 #controls button,.intro button{border:1px solid #ffffff66;border-radius:8px;background:rgba(12,18,25,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;padding:8px 11px}
 #hint{display:none}
-#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(226px,32svh,280px));width:100%;height:min(56svh,510px);pointer-events:none;z-index:2}
+#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(198px,28svh,248px));width:100%;height:min(56svh,510px);pointer-events:none;z-index:2}
 .portrait{position:absolute;bottom:0;height:100%;width:auto;max-width:58%;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55));display:none}
 #sprite-left{left:0}
 #sprite-right{right:0}
@@ -48,7 +48,7 @@ button{font:inherit;cursor:pointer}
 #game.shaking{animation:screen-shake .48s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes screen-shake{0%,100%{transform:translate(0,0)}10%{transform:translate(-8px,4px)}20%{transform:translate(9px,-5px)}30%{transform:translate(-10px,3px)}40%{transform:translate(8px,5px)}50%{transform:translate(-6px,-4px)}60%{transform:translate(6px,2px)}75%{transform:translate(-3px,2px)}90%{transform:translate(2px,-1px)}}
 @media (max-width:650px){
-  #sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + clamp(232px,32svh,285px));height:min(51svh,440px)}
+  #sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + clamp(203px,28svh,251px));height:min(51svh,440px)}
   .portrait{max-width:64%}
   #box{min-height:245px;padding:20px 18px 16px}
   #dialogue{line-height:1.82}
