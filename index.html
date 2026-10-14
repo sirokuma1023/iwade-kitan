@@ -117,6 +117,18 @@ const EXPRESSIONS={
   naoto_troubled:'assets/sprites/naoto_troubled.png',
   naoto_wry:'assets/sprites/naoto_wry.png'
 };
+// Decode character sprites while the title/prologue is visible so first appearances are immediate.
+const spriteCache=new Map();
+function preloadSprites(){
+ for(const [key,url] of Object.entries(EXPRESSIONS)){
+  if(spriteCache.has(key))continue;
+  const img=new Image();
+  img.decoding='async';
+  img.src=url;
+  spriteCache.set(key,img);
+  if(typeof img.decode==='function')img.decode().catch(()=>{});
+ }
+}
 const TRACKS={
   main:'assets/audio/main.mp3',
   daily:'assets/audio/daily.mp3',
@@ -202,7 +214,7 @@ document.getElementById('startover').addEventListener('click',e=>{ e.stopPropaga
 document.getElementById('box').addEventListener('click', next);
 document.getElementById('game').addEventListener('click',e=>{ if(!started) return; if(e.target.closest('button,#box,.intro')) return; next(); });
 document.addEventListener('keydown',e=>{ if(logOpen){if(e.key==='Escape'){e.preventDefault();closeBacklog();}return;}if(['ArrowRight',' ','Enter'].includes(e.key)){ e.preventDefault(); next(); } if(e.key==='ArrowLeft'){ e.preventDefault(); previous(); } });
-window.addEventListener('load', ()=>{ bg.style.backgroundImage=`url('${BG.festival}')`; updateSoundButton(); tryTitleAutoplay(); });
+window.addEventListener('load', ()=>{ preloadSprites(); bg.style.backgroundImage=`url('${BG.festival}')`; updateSoundButton(); tryTitleAutoplay(); });
 // Browsers may block unmuted autoplay; a tap on the title background retries without an extra button.
 intro.addEventListener('pointerdown',e=>{if(!started && e.target.id!=='play' && music.paused)tryTitleAutoplay();});
 
