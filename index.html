@@ -57,6 +57,7 @@ button{font:inherit;cursor:pointer}
 }
 @media (prefers-reduced-motion:reduce){#game.shaking,#onomatopoeia.active,#noise-overlay.active{animation:none}}
 #backlog[hidden]{display:none}#backlog{position:absolute;inset:0;z-index:30;background:rgba(7,11,16,.97);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 17px) 18px calc(env(safe-area-inset-bottom) + 18px)}.log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;font-size:18px}.log-head button{color:white;background:#273444;border:1px solid #8994a1;border-radius:7px;padding:8px 14px}#log-items{overflow-y:auto;overscroll-behavior:contain;flex:1}.log-entry{border-bottom:1px solid #44505b;padding:12px 4px;white-space:pre-line;line-height:1.7}.log-entry strong{display:block;color:var(--gold);margin-bottom:4px}#auto[aria-pressed="true"]{border-color:var(--gold)!important;color:var(--gold)!important}@media(max-width:650px){#controls{gap:3px}#controls button{padding:7px 6px;font-size:12px}#brand{font-size:13px;letter-spacing:.04em}}
+.title-catchcopy{margin:16px 0 4px;max-width:95%;font-size:clamp(13px,3.5vw,17px);line-height:1.65;letter-spacing:.035em;color:#f5f1e7;text-shadow:0 2px 7px #000}.title-catchcopy p{margin:0 0 10px}.title-catchcopy p:last-child{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -90,6 +91,7 @@ button{font:inherit;cursor:pointer}
     <p class="subtitle">体験版</p>
     <h1>岩出奇譚</h1>
     <p>第一章　コピー紙を切る女</p>
+    <div class="title-catchcopy"><p>知っている場所が、怖くなる。</p><p>いつもの風景に、ひとつだけ嘘がある。</p><p>怪異か、科学か、それともヒトか。</p><p>あなたは、嘘を見抜けますか？</p></div>
     
     <button id="play">はじめる</button>
     <div class="credit">BGM / SE / Sprite review build</div>
