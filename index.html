@@ -54,6 +54,7 @@ button{font:inherit;cursor:pointer}
   #dialogue{line-height:1.82}
 }
 @media (prefers-reduced-motion:reduce){#game.shaking,#onomatopoeia.active,#noise-overlay.active{animation:none}}
+#backlog[hidden]{display:none}#backlog{position:absolute;inset:0;z-index:30;background:rgba(7,11,16,.97);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 17px) 18px calc(env(safe-area-inset-bottom) + 18px)}.log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;font-size:18px}.log-head button{color:white;background:#273444;border:1px solid #8994a1;border-radius:7px;padding:8px 14px}#log-items{overflow-y:auto;overscroll-behavior:contain;flex:1}.log-entry{border-bottom:1px solid #44505b;padding:12px 4px;white-space:pre-line;line-height:1.7}.log-entry strong{display:block;color:var(--gold);margin-bottom:4px}#auto[aria-pressed="true"]{border-color:var(--gold)!important;color:var(--gold)!important}@media(max-width:650px){#controls{gap:3px}#controls button{padding:7px 6px;font-size:12px}#brand{font-size:13px;letter-spacing:.04em}}
 </style>
 </head>
 <body>
@@ -68,7 +69,7 @@ button{font:inherit;cursor:pointer}
       <div id="chapter">第一章　関ノ音</div>
     </div>
     <div id="controls">
-      <button id="sound" aria-pressed="true">♪ 音ON</button>
+      <button id="sound" aria-pressed="true">♪ 音ON</button><button id="auto" aria-pressed="false">オート</button><button id="log">ログ</button>
       <button id="back">戻る</button>
       <button id="startover">最初から</button>
     </div>
@@ -82,6 +83,7 @@ button{font:inherit;cursor:pointer}
     <div id="counter"></div>
     <div id="next">▼ TAP</div>
   </div>
+  <div id="backlog" role="dialog" aria-label="会話ログ" aria-modal="true" hidden><div class="log-head"><strong>会話ログ</strong><button id="close-log">閉じる</button></div><div id="log-items"></div></div>
   <div id="intro" class="intro">
     <p class="subtitle">ビジュアルノベル試作・完成脚本チェック版</p>
     <h1>岩出奇譚</h1>
@@ -141,7 +143,7 @@ const dialog=document.getElementById('dialogue');
 const intro=document.getElementById('intro');
 const nextMarker=document.getElementById('next');
 const noiseOverlay=document.getElementById('noise-overlay');
-let i=0, started=false, lastBg='', soundEnabled=true, textDone=true, typingTimer=null, typingEpoch=0;
+let autoEnabled=false,autoTimer=null,logOpen=false,visitedMax=-1;let i=0, started=false, lastBg='', soundEnabled=true, textDone=true, typingTimer=null, typingEpoch=0;
 const music=new Audio(); music.loop=true; music.preload='auto'; music.volume=0; let currentTrack=''; let fadeJob=null; let bgmPending=null; let bgmSerial=0; let effectTimers=[];
 const sePaper=new Audio(SE.paper); const seClang=new Audio(SE.clang); [sePaper,seClang].forEach(a=>{a.preload='auto';a.volume=.92;});
 let ac=null;
@@ -160,14 +162,14 @@ function missingSE(){ noiseOverlay.classList.remove('active'); void noiseOverlay
 function fadeStop(ms=350){ if(fadeJob) clearInterval(fadeJob); if(music.paused) return; const steps=12,from=music.volume; let n=0; fadeJob=setInterval(()=>{ n++; music.volume=Math.max(0, from*(1-n/steps)); if(n>=steps){ clearInterval(fadeJob); fadeJob=null; music.pause(); music.volume=0; currentTrack=''; } }, Math.max(15,ms/steps)); }
 function bgm(track,delayMs=0){ const serial=++bgmSerial; if(bgmPending){ clearTimeout(bgmPending); bgmPending=null; } if(!soundEnabled || !track || track==='none'){ fadeStop(160); return; } if(currentTrack===track && !music.paused) return; if(delayMs<=0) fadeStop(140); const begin=()=>{ if(serial!==bgmSerial || !soundEnabled) return; if(fadeJob){ clearInterval(fadeJob); fadeJob=null; } music.pause(); music.src=TRACKS[track]; music.currentTime=0; music.volume=0; currentTrack=track; const p=music.play(); if(p&&p.catch) p.catch(()=>{}); let n=0; fadeJob=setInterval(()=>{ if(serial!==bgmSerial){ clearInterval(fadeJob); fadeJob=null; return; } n++; music.volume=Math.min(.18,.18*n/18); if(n>=18){ clearInterval(fadeJob); fadeJob=null; } },55); }; if(delayMs>0) bgmPending=setTimeout(()=>{ bgmPending=null; begin(); },delayMs); else begin(); }
 function tryTitleAutoplay(){ if(!soundEnabled) return; bgm('main',0); }
-function cancelTyping(){ typingEpoch++; if(typingTimer) clearTimeout(typingTimer); typingTimer=null; }
-function typeLine(line,ms=0){ cancelTyping(); const epoch=typingEpoch; dialog.textContent=''; const chars=[...line]; let index=0; textDone=ms<=0; nextMarker.style.opacity=textDone?'1':'.32'; if(ms<=0){ dialog.textContent=line; return; } function tick(){ if(epoch!==typingEpoch) return; if(index>=chars.length){ textDone=true; nextMarker.style.opacity='1'; typingTimer=null; return; } const c=chars[index++]; dialog.textContent+=c; typingTimer=setTimeout(tick, c==='。'||c==='？'||c==='！' ? ms*5 : c==='、' ? ms*3 : ms); } tick(); }
-function showAll(){ const s=SCENES[i]; cancelTyping(); dialog.textContent=s.line; textDone=true; nextMarker.style.opacity='1'; }
+function cancelAuto(){if(autoTimer!==null){clearTimeout(autoTimer);autoTimer=null;}}function scheduleAuto(){cancelAuto();if(!autoEnabled||!started||logOpen||!textDone||i>=SCENES.length-1)return;const scene=SCENES[i];const delay=Math.max(1800,Math.min(5400,1300+[...scene.line].length*75));autoTimer=setTimeout(()=>{autoTimer=null;if(autoEnabled&&started&&!logOpen){i++;render();}},delay);}function cancelTyping(){ typingEpoch++; if(typingTimer) clearTimeout(typingTimer); typingTimer=null; }
+function typeLine(line,ms=0){ cancelTyping(); const epoch=typingEpoch; dialog.textContent=''; const chars=[...line]; let index=0; textDone=ms<=0; nextMarker.style.opacity=textDone?'1':'.32'; if(ms<=0){ dialog.textContent=line; scheduleAuto(); return; } function tick(){ if(epoch!==typingEpoch) return; if(index>=chars.length){ textDone=true; nextMarker.style.opacity='1'; typingTimer=null; scheduleAuto(); return; } const c=chars[index++]; dialog.textContent+=c; typingTimer=setTimeout(tick, c==='。'||c==='？'||c==='！' ? ms*5 : c==='、' ? ms*3 : ms); } tick(); }
+function showAll(){ const s=SCENES[i]; cancelTyping(); dialog.textContent=s.line; textDone=true; nextMarker.style.opacity='1'; scheduleAuto(); }
 function showOnomatopoeia(text){}
 function playEffect(effect){ clearEffects(); stopSE(); if(effect==='video-start'){ tone(1220,.085,'sine',.11,0,970); noiseBurst(.11,.055,.03); noiseOverlay.classList.remove('video'); void noiseOverlay.offsetWidth; noiseOverlay.classList.add('video'); schedule(()=>noiseOverlay.classList.remove('video'),480); } else if(effect==='paper-cut'){ playSE('paper'); } else if(effect==='boom'){ document.getElementById('game').classList.add('shaking'); document.getElementById('flash').classList.remove('boom'); void document.getElementById('flash').offsetWidth; document.getElementById('flash').classList.add('boom'); impactSE(); } else if(effect==='pop'){ popSE(); } else if(effect==='quirk'){ comicSE(); } else if(effect==='clang'){ playSE('clang'); } else if(effect==='missing'){ missingSE(); } }
-function render(){ const s=SCENES[i]; if(s.bg!==lastBg){ bg.style.backgroundImage=`url('${BG[s.bg]}')`; lastBg=s.bg; } nameE.textContent=s.speaker||'';  spriteLeft.classList.remove('active'); spriteRight.classList.remove('active'); if(s.person!=='none'){ const target=s.person==='naoto'?spriteLeft:spriteRight; const src=EXPRESSIONS[s.expression]; if(target.getAttribute('src')!==src) target.setAttribute('src',src); target.alt=s.speaker; target.classList.add('active'); } const typingSpeed=s.speed===undefined?30:s.speed; typeLine(s.line, typingSpeed); playEffect(s.effect); const delay = s.effect==='paper-cut' ? 1000 : s.effect==='boom' ? 1200 : s.effect==='quirk' ? 700 : s.effect==='clang' ? 1500 : 0; if(s.line==='行方不明なんだよね。'){ bgmSerial++; if(bgmPending){clearTimeout(bgmPending);bgmPending=null;} fadeStop(1100); bgmPending=setTimeout(()=>{bgmPending=null;bgm('main',0)},1650); } else bgm(s.music,delay); }
-function next(){ wakeAudio(); if(!started){ start(); return; } if(!textDone){ showAll(); return; } if(i<SCENES.length-1){ i++; render(); } else { intro.style.display='flex'; started=false; i=0; cancelTyping(); tryTitleAutoplay(); } }
-function previous(){ if(started && i>0){ i--; render(); } }
+function render(){ cancelAuto(); visitedMax=Math.max(visitedMax,i); const s=SCENES[i]; if(s.bg!==lastBg){ bg.style.backgroundImage=`url('${BG[s.bg]}')`; lastBg=s.bg; } nameE.textContent=s.speaker||'';  spriteLeft.classList.remove('active'); spriteRight.classList.remove('active'); if(s.person!=='none'){ const target=s.person==='naoto'?spriteLeft:spriteRight; const src=EXPRESSIONS[s.expression]; if(target.getAttribute('src')!==src) target.setAttribute('src',src); target.alt=s.speaker; target.classList.add('active'); } const typingSpeed=s.speed===undefined?30:s.speed; typeLine(s.line, typingSpeed); playEffect(s.effect); const delay = s.effect==='paper-cut' ? 1000 : s.effect==='boom' ? 1200 : s.effect==='quirk' ? 700 : s.effect==='clang' ? 1500 : 0; if(s.line==='行方不明なんだよね。'){ bgmSerial++; if(bgmPending){clearTimeout(bgmPending);bgmPending=null;} fadeStop(1100); bgmPending=setTimeout(()=>{bgmPending=null;bgm('main',0)},1650); } else bgm(s.music,delay); }
+function next(){ if(logOpen)return; if(autoEnabled){autoEnabled=false;document.getElementById('auto').setAttribute('aria-pressed','false');cancelAuto();} wakeAudio(); if(!started){ start(); return; } if(!textDone){ showAll(); return; } if(i<SCENES.length-1){ i++; render(); } else { intro.style.display='flex'; started=false; i=0; cancelTyping(); tryTitleAutoplay(); } }
+function previous(){cancelAuto(); if(autoEnabled){autoEnabled=false;document.getElementById('auto').setAttribute('aria-pressed','false');} if(started && i>0){ i--; render(); } }
 function stopTitleMusicNow(){
   bgmSerial++;
   if(bgmPending){clearTimeout(bgmPending);bgmPending=null;}
@@ -175,21 +177,23 @@ function stopTitleMusicNow(){
   music.pause();music.volume=0;music.currentTime=0;currentTrack='';
 }
 function start(){
+  autoEnabled=false;cancelAuto();document.getElementById('auto').setAttribute('aria-pressed','false');visitedMax=-1;
   getAC();
   stopTitleMusicNow();
   started=true;i=0;intro.style.display='none';
   render();
 }
-function restart(){ getAC(); started=true; i=0; render(); }
+function restart(){autoEnabled=false;cancelAuto();document.getElementById('auto').setAttribute('aria-pressed','false'); getAC(); started=true; i=0; render(); }
 function wakeAudio(){ getAC(); if(started && soundEnabled && (music.paused || !currentTrack)){ bgm(SCENES[i].music||'none'); } }
 function updateSoundButton(){ const b=document.getElementById('sound'); b.textContent=soundEnabled?'♪ 音ON':'♪ 音OFF'; b.setAttribute('aria-pressed', String(soundEnabled)); }
+function openBacklog(){if(!started)return;logOpen=true;cancelAuto();const list=document.getElementById('log-items');list.replaceChildren();for(let j=0;j<=visitedMax;j++){const scene=SCENES[j];if(!scene.line)continue;const entry=document.createElement('div');entry.className='log-entry';if(scene.speaker){const title=document.createElement('strong');title.textContent=scene.speaker;entry.appendChild(title);}const body=document.createElement('span');body.textContent=scene.line;entry.appendChild(body);list.appendChild(entry);}document.getElementById('backlog').hidden=false;list.scrollTop=list.scrollHeight;}function closeBacklog(){document.getElementById('backlog').hidden=true;logOpen=false;scheduleAuto();}document.getElementById('log').addEventListener('click',e=>{e.stopPropagation();openBacklog();});document.getElementById('close-log').addEventListener('click',e=>{e.stopPropagation();closeBacklog();});document.getElementById('auto').addEventListener('click',e=>{e.stopPropagation();if(!started)return;autoEnabled=!autoEnabled;e.currentTarget.setAttribute('aria-pressed',String(autoEnabled));if(autoEnabled)scheduleAuto();else cancelAuto();});
 document.getElementById('sound').addEventListener('click',e=>{ e.stopPropagation(); soundEnabled=!soundEnabled; updateSoundButton(); if(soundEnabled){ wakeAudio(); if(started) bgm(SCENES[i].music||'none'); else tryTitleAutoplay(); } else { clearEffects(); fadeStop(80); } });
 document.getElementById('play').addEventListener('click',e=>{ e.stopPropagation(); start(); });
 document.getElementById('back').addEventListener('click',e=>{ e.stopPropagation(); previous(); });
 document.getElementById('startover').addEventListener('click',e=>{ e.stopPropagation(); restart(); });
 document.getElementById('box').addEventListener('click', next);
 document.getElementById('game').addEventListener('click',e=>{ if(!started) return; if(e.target.closest('button,#box,.intro')) return; next(); });
-document.addEventListener('keydown',e=>{ if(['ArrowRight',' ','Enter'].includes(e.key)){ e.preventDefault(); next(); } if(e.key==='ArrowLeft'){ e.preventDefault(); previous(); } });
+document.addEventListener('keydown',e=>{ if(logOpen){if(e.key==='Escape'){e.preventDefault();closeBacklog();}return;}if(['ArrowRight',' ','Enter'].includes(e.key)){ e.preventDefault(); next(); } if(e.key==='ArrowLeft'){ e.preventDefault(); previous(); } });
 window.addEventListener('load', ()=>{ bg.style.backgroundImage=`url('${BG.festival}')`; updateSoundButton(); tryTitleAutoplay(); });
 // Browsers may block unmuted autoplay; a tap on the title background retries without an extra button.
 intro.addEventListener('pointerdown',e=>{if(!started && e.target.id!=='play' && music.paused)tryTitleAutoplay();});
