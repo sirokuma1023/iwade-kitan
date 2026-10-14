@@ -128,7 +128,8 @@ const dialogueBox=document.getElementById('box');
 function alignSpritesToDialogue(){
  const gameRect=gameElement.getBoundingClientRect();
  const boxRect=dialogueBox.getBoundingClientRect();
- const bottom=Math.max(0,gameRect.bottom-boxRect.top-12);
+ // Overlap behind the foreground text panel to conceal transparent padding on Xperia/real devices.
+ const bottom=Math.max(0,gameRect.bottom-boxRect.top-72);
  gameElement.style.setProperty('--portrait-bottom',bottom+'px');
 }
 alignSpritesToDialogue();
