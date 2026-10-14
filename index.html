@@ -18,13 +18,13 @@ button{font:inherit;cursor:pointer}
 #controls{display:flex;gap:6px;align-items:center}
 #controls button,.intro button{border:1px solid #ffffff66;border-radius:8px;background:rgba(12,18,25,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;padding:8px 11px}
 #hint{display:none}
-#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(170px,25svh,220px));width:min(58vw,430px);height:min(60svh,560px);overflow:visible;pointer-events:none;transition:left .25s,right .25s;z-index:3}
+#sprite-wrap{position:absolute;bottom:calc(env(safe-area-inset-bottom) + clamp(194px,28svh,245px));width:min(58vw,430px);height:min(60svh,560px);overflow:visible;pointer-events:none;transition:none;z-index:3}
 #sprite-wrap.right{right:clamp(2px,2vw,18px);left:auto}
 #sprite-wrap.left{left:clamp(2px,2vw,18px);right:auto}
-#sprite{position:absolute;bottom:0;height:100%;width:auto;max-width:none;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55));transition:opacity .18s, transform .25s}
+#sprite{position:absolute;bottom:0;height:100%;width:auto;max-width:none;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55));transition:none}
 #sprite-wrap.right #sprite{right:0;left:auto;object-position:bottom right}
 #sprite-wrap.left #sprite{left:0;right:auto;object-position:bottom left}
-#sprite.hidden{opacity:0;transform:translateY(14px)}
+#sprite.hidden{opacity:0;transform:none}
 #box{position:absolute;left:clamp(8px,1.6vw,22px);right:clamp(8px,1.6vw,22px);bottom:calc(env(safe-area-inset-bottom) + 12px);min-height:clamp(225px,32svh,300px);padding:22px 22px 16px;border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 36px rgba(0,0,0,.55);display:flex;flex-direction:column;cursor:pointer}
 #name{font-size:17px;font-weight:800;letter-spacing:.08em;color:var(--gold);min-height:26px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 #dialogue{margin-top:12px;flex:1;max-width:980px;white-space:pre-line;font-size:clamp(17px,2.7vw,22px);font-weight:500;line-height:1.9;color:var(--text);text-shadow:0 2px 10px var(--shadow)}
@@ -48,7 +48,7 @@ button{font:inherit;cursor:pointer}
 #game.shaking{animation:screen-shake .48s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes screen-shake{0%,100%{transform:translate(0,0)}10%{transform:translate(-8px,4px)}20%{transform:translate(9px,-5px)}30%{transform:translate(-10px,3px)}40%{transform:translate(8px,5px)}50%{transform:translate(-6px,-4px)}60%{transform:translate(6px,2px)}75%{transform:translate(-3px,2px)}90%{transform:translate(2px,-1px)}}
 @media (max-width:650px){
-  #sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + clamp(176px,23svh,205px));width:min(58vw,250px);height:min(56svh,420px)}
+  #sprite-wrap{bottom:calc(env(safe-area-inset-bottom) + clamp(201px,26svh,230px));width:min(58vw,250px);height:min(56svh,420px)}
   #box{min-height:220px;padding:20px 18px 16px}
   #dialogue{line-height:1.82}
 }
@@ -143,13 +143,13 @@ function noiseBurst(duration=.25,vol=.12,delay=0){ const c=getAC(); if(!c) retur
 function missingSE(){ noiseOverlay.classList.remove('active'); void noiseOverlay.offsetWidth; noiseOverlay.classList.add('active'); noiseBurst(.18,.16,0); noiseBurst(.24,.11,.22); noiseBurst(.42,.08,.50); schedule(()=>bgm('ominous',120),950); }
 function fadeStop(ms=350){ if(fadeJob) clearInterval(fadeJob); if(music.paused) return; const steps=12,from=music.volume; let n=0; fadeJob=setInterval(()=>{ n++; music.volume=Math.max(0, from*(1-n/steps)); if(n>=steps){ clearInterval(fadeJob); fadeJob=null; music.pause(); music.volume=0; currentTrack=''; } }, Math.max(15,ms/steps)); }
 function bgm(track,delayMs=0){ const serial=++bgmSerial; if(bgmPending){ clearTimeout(bgmPending); bgmPending=null; } if(!soundEnabled || !track || track==='none'){ fadeStop(160); return; } if(currentTrack===track && !music.paused) return; if(delayMs<=0) fadeStop(140); const begin=()=>{ if(serial!==bgmSerial || !soundEnabled) return; if(fadeJob){ clearInterval(fadeJob); fadeJob=null; } music.pause(); music.src=TRACKS[track]; music.currentTime=0; music.volume=0; currentTrack=track; const p=music.play(); if(p&&p.catch) p.catch(()=>{}); let n=0; fadeJob=setInterval(()=>{ if(serial!==bgmSerial){ clearInterval(fadeJob); fadeJob=null; return; } n++; music.volume=Math.min(.18,.18*n/18); if(n>=18){ clearInterval(fadeJob); fadeJob=null; } },55); }; if(delayMs>0) bgmPending=setTimeout(()=>{ bgmPending=null; begin(); },delayMs); else begin(); }
-function tryTitleAutoplay(){ if(!soundEnabled) return; getAC(); bgm('main',0); }
+function tryTitleAutoplay(){ if(!soundEnabled) return; bgm('main',0); }
 function cancelTyping(){ typingEpoch++; if(typingTimer) clearTimeout(typingTimer); typingTimer=null; }
 function typeLine(line,ms=0){ cancelTyping(); const epoch=typingEpoch; dialog.textContent=''; const chars=[...line]; let index=0; textDone=ms<=0; nextMarker.style.opacity=textDone?'1':'.32'; if(ms<=0){ dialog.textContent=line; return; } function tick(){ if(epoch!==typingEpoch) return; if(index>=chars.length){ textDone=true; nextMarker.style.opacity='1'; typingTimer=null; return; } const c=chars[index++]; dialog.textContent+=c; typingTimer=setTimeout(tick, c==='。'||c==='？'||c==='！' ? ms*5 : c==='、' ? ms*3 : ms); } tick(); }
 function showAll(){ const s=SCENES[i]; cancelTyping(); dialog.textContent=s.line; textDone=true; nextMarker.style.opacity='1'; }
 function showOnomatopoeia(text){}
 function playEffect(effect){ clearEffects(); stopSE(); if(effect==='paper-cut'){ playSE('paper'); } else if(effect==='boom'){ document.getElementById('game').classList.add('shaking'); document.getElementById('flash').classList.remove('boom'); void document.getElementById('flash').offsetWidth; document.getElementById('flash').classList.add('boom'); impactSE(); } else if(effect==='pop'){ popSE(); } else if(effect==='quirk'){ comicSE(); } else if(effect==='clang'){ playSE('clang'); } else if(effect==='missing'){ missingSE(); } }
-function render(){ const s=SCENES[i]; if(s.bg!==lastBg){ bg.style.backgroundImage=`url('${BG[s.bg]}')`; lastBg=s.bg; } nameE.textContent=s.speaker||'';  if(s.person==='none'){ sprite.classList.add('hidden'); sprite.removeAttribute('src'); } else { const side=s.person==='naoto'?'left':'right'; spriteWrap.classList.remove('left','right'); spriteWrap.classList.add(side); sprite.src=EXPRESSIONS[s.expression]; sprite.alt=s.speaker; sprite.classList.remove('hidden'); } const typingSpeed=s.speed===undefined?30:s.speed; typeLine(s.line, typingSpeed); playEffect(s.effect); const delay = s.effect==='paper-cut' ? 1000 : s.effect==='boom' ? 1200 : s.effect==='quirk' ? 700 : s.effect==='clang' ? 1500 : s.effect==='missing' ? 1200 : 0; bgm(s.music, delay); }
+function render(){ const s=SCENES[i]; if(s.bg!==lastBg){ bg.style.backgroundImage=`url('${BG[s.bg]}')`; lastBg=s.bg; } nameE.textContent=s.speaker||'';  if(s.person==='none'){ sprite.classList.add('hidden'); } else { const side=s.person==='naoto'?'left':'right'; spriteWrap.classList.remove('left','right'); spriteWrap.classList.add(side); if(sprite.getAttribute('src')!==EXPRESSIONS[s.expression]) sprite.src=EXPRESSIONS[s.expression]; sprite.alt=s.speaker; sprite.classList.remove('hidden'); } const typingSpeed=s.speed===undefined?30:s.speed; typeLine(s.line, typingSpeed); playEffect(s.effect); const delay = s.effect==='paper-cut' ? 1000 : s.effect==='boom' ? 1200 : s.effect==='quirk' ? 700 : s.effect==='clang' ? 1500 : 0; if(s.line==='行方不明なんだよね。'){ bgmSerial++; if(bgmPending){clearTimeout(bgmPending);bgmPending=null;} fadeStop(1100); bgmPending=setTimeout(()=>{bgmPending=null;bgm('main',0)},1650); } else bgm(s.music,delay); }
 function next(){ wakeAudio(); if(!started){ start(); return; } if(!textDone){ showAll(); return; } if(i<SCENES.length-1){ i++; render(); } else { intro.style.display='flex'; started=false; i=0; cancelTyping(); tryTitleAutoplay(); } }
 function previous(){ if(started && i>0){ i--; render(); } }
 function stopTitleMusicNow(){
@@ -175,7 +175,7 @@ document.getElementById('box').addEventListener('click', next);
 document.getElementById('game').addEventListener('click',e=>{ if(!started) return; if(e.target.closest('button,#box,.intro')) return; next(); });
 document.addEventListener('keydown',e=>{ if(['ArrowRight',' ','Enter'].includes(e.key)){ e.preventDefault(); next(); } if(e.key==='ArrowLeft'){ e.preventDefault(); previous(); } });
 window.addEventListener('load', ()=>{ bg.style.backgroundImage=`url('${BG.festival}')`; updateSoundButton(); tryTitleAutoplay(); });
-document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && !started) tryTitleAutoplay(); });
+
 ['pointerdown','touchstart','mousedown'].forEach(ev=>document.addEventListener(ev, ()=>{ if(started) wakeAudio(); }, {once:true}));
 </script>
 </body>
