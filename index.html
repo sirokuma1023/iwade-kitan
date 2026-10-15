@@ -45,6 +45,10 @@ button{font:inherit;cursor:pointer}
 #ending-blackout{pointer-events:none;position:absolute;inset:0;background:#000;opacity:0;z-index:15;transition:opacity 2.1s ease}
 #ending-blackout.on{opacity:1}
 #ending-caption{position:absolute;inset:0;z-index:16;display:flex;align-items:center;justify-content:center;color:#f5f1e9;font-family:serif;font-size:clamp(26px,7vw,42px);letter-spacing:.24em;text-shadow:0 2px 12px #000;opacity:0;pointer-events:none;transition:opacity .8s ease}
+#ending-caption{flex-direction:column;text-align:center;gap:0;padding:24px}
+#ending-caption .ending-heading{font-size:clamp(26px,7vw,42px);font-weight:600}
+#ending-caption .ending-notice{margin-top:30px;max-width:340px;font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;font-size:clamp(13px,3.6vw,16px);font-weight:400;line-height:1.9;letter-spacing:.025em}
+#ending-caption .ending-credits{margin-top:24px;font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;font-size:10px;font-weight:400;line-height:1.7;letter-spacing:0;color:#a8a8a8}
 #ending-caption.visible{opacity:1}
 #box.chapter-end-hidden{visibility:hidden}
 #flash.boom{animation:bang .42s ease-out}
@@ -74,7 +78,7 @@ button{font:inherit;cursor:pointer}
   <div id="bg"></div>
   <div id="veil"></div>
   <div id="noise-overlay"></div>
-  <div id="flash"></div><div id="scene-transition"></div><div id="ending-blackout"></div><div id="ending-caption" aria-live="polite">第一章　終</div>
+  <div id="flash"></div><div id="scene-transition"></div><div id="ending-blackout"></div><div id="ending-caption" aria-live="polite"><div class="ending-heading">第一章　終</div><div class="ending-notice">続きは「岩出かずや」公式LINEで発表していきます。</div><div class="ending-credits">原作・脚本：Sin Bach Sirokuma　｜　音楽：Sirokuma</div></div>
   <div id="top">
     <div>
       <div id="brand">岩出奇譚</div>
@@ -103,7 +107,7 @@ button{font:inherit;cursor:pointer}
     <div class="title-catchcopy"><p>知っている場所が、怖くなる。</p><p>いつもの風景に、ひとつだけ嘘がある。</p><p>怪異か、科学か、それともヒトか。</p><p>あなたは、嘘を見抜けますか？</p></div>
     
     <button id="play">はじめる</button>
-    <div class="credit">BGM / SE / Sprite review build</div>
+    <div class="credit">Demo v1.0.1</div>
   </div>
 </div>
 <script>
