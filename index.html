@@ -75,6 +75,28 @@ button{font:inherit;cursor:pointer}
 @media(max-width:650px){#sprite-right.iwade-host{height:126%;max-width:none}}
 .fiction-notice{max-width:92%;font-size:clamp(11px,2.8vw,13px);color:#d9d7d2;line-height:1.6;margin:9px auto 12px!important;letter-spacing:0!important}
 .intro .portrait-tip{margin:30px auto 12px;max-width:340px;padding:7px 12px;border:1px solid rgba(241,210,160,.45);border-radius:8px;background:rgba(8,12,17,.55);font-size:clamp(11px,2.8vw,13px);line-height:1.55;color:#f1d2a0;text-align:center;letter-spacing:.015em}
+
+/* Title screen is scrollable on small phones; game scenes stay fixed. */
+.intro{overflow-y:auto;justify-content:flex-start;overscroll-behavior:contain;padding:34px 18px 24px;gap:5px}
+.intro .credit{position:static;margin:12px auto 0}
+.demo-genre{font-size:12px;color:#dfc49e;letter-spacing:.05em!important}
+.demo-hook{width:min(95%,430px);padding:12px 14px;margin:8px auto;background:rgba(12,18,25,.75);border:1px solid rgba(214,195,163,.45);border-radius:10px;font-size:clamp(12px,3.3vw,15px);line-height:1.65}
+.demo-hook strong{color:#f5e5c8}
+.demo-hook p,.demo-how p{margin:5px 0;line-height:1.6;letter-spacing:.02em}
+.demo-how{width:min(95%,440px);margin:8px auto 0;padding:4px 9px;font-size:clamp(12px,3.2vw,14px)}
+.demo-how strong{color:#f5e5c8}
+#ending-caption{justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;padding:24px 15px 35px;gap:12px}
+#ending-caption .ending-teaser{max-width:410px;font:400 clamp(12px,3.25vw,15px)/1.55 'Noto Sans JP',Meiryo,sans-serif;letter-spacing:.02em}
+.ending-teaser p{margin:5px 0}.ending-teaser strong{display:block;margin:10px 0;color:#f5e5c8;font-size:clamp(17px,4.3vw,21px)}
+#ending-caption .ending-password-box{width:min(94%,390px);padding:14px;border:1px solid #d9ad69;border-radius:10px;font:400 clamp(13px,3.3vw,16px)/1.6 'Noto Sans JP',Meiryo,sans-serif;letter-spacing:.02em}
+#ending-caption .ending-password{display:block;font-size:clamp(32px,8.5vw,46px);margin:3px 0;color:#fff}
+#ending-caption .ending-password-help{margin-top:1px;font-size:clamp(11px,2.8vw,13px)}
+#ending-caption .ending-line-panel{width:min(94%,390px);padding:15px 13px;border-radius:10px;background:rgba(12,53,36,.94);font-family:'Noto Sans JP',Meiryo,sans-serif;letter-spacing:.02em}
+.ending-line-panel strong{display:block;font-size:clamp(15px,4vw,19px)}
+.ending-line-panel p{margin:8px 0;font-size:clamp(12px,3.1vw,14px);line-height:1.55}
+#ending-caption .ending-line-wrap{margin:10px 0 0;width:100%}
+#ending-caption .ending-line-link{display:block;background:#06c755;border-radius:9px;color:white;text-decoration:none;font-weight:700;padding:13px 10px}
+#ending-caption .ending-credits{margin-top:6px}
 </style>
 </head>
 <body>
@@ -82,7 +104,11 @@ button{font:inherit;cursor:pointer}
   <div id="bg"></div>
   <div id="veil"></div>
   <div id="noise-overlay"></div>
-  <div id="flash"></div><div id="scene-transition"></div><div id="ending-blackout"></div><div id="ending-caption" aria-live="polite"><div class="ending-heading">第一章　終</div><div class="ending-notice">続きは「岩出かずや」公式LINEで発表していきます。</div><div class="ending-line-wrap"><a class="ending-line-link" href="https://line.me/R/ti/p/@145wbufv" target="_blank" rel="noopener noreferrer">公式LINEはこちら</a></div><div class="ending-notice">第2章「トンテンカン」解放パスワード</div><div class="ending-password">岩出</div><div class="ending-password-help">本編のタイトル画面で入力してください。</div><div class="ending-credits">原作・脚本：Sin Bach Sirokuma　｜　音楽：Sirokuma</div></div>
+  <div id="flash"></div><div id="scene-transition"></div><div id="ending-blackout"></div><div id="ending-caption" aria-live="polite"><div class="ending-heading">第一章　終</div>
+<div class="ending-teaser"><p>誰もいない部屋に響いた、三度の金属音。</p><p>その音は、いったいどこから聞こえたのか。</p><strong>物語は、まだ終わらない。</strong><p>第2章では現場へ。第3章では、あなた自身が推理に参加します。</p></div>
+<div class="ending-password-box"><div>第2章 解放パスワード</div><strong class="ending-password">岩出</strong><div class="ending-password-help">本編のタイトル画面で入力してください</div></div>
+<div class="ending-line-panel"><strong>続きは岩出かずや公式LINEから</strong><p>友だち追加後、リッチメニューの「岩出奇譚」から本編を開いてください。</p><div class="ending-line-wrap"><a class="ending-line-link" href="https://line.me/R/ti/p/@145wbufv" target="_blank" rel="noopener noreferrer">公式LINEを友だち追加</a></div></div>
+<div class="ending-credits">原作・脚本：Sin Bach Sirokuma　｜　音楽：Sirokuma</div></div>
   <div id="top">
     <div>
       <div id="brand">岩出奇譚</div>
@@ -110,7 +136,10 @@ button{font:inherit;cursor:pointer}
     
     <p>第一章　コピー紙を切る女</p>
     
+    <p class="demo-genre">ミステリー・ノベルゲーム ｜ 第1話「関ノ音」</p>
     <div class="title-catchcopy"><p>知っている場所が、怖くなる。</p><p>いつもの風景に、ひとつだけ嘘がある。</p><p>怪異か、科学か、それともヒトか。</p><p>あなたは、嘘を見抜けますか？</p></div>
+    <div class="demo-hook"><strong>誰もいない部屋から、三度の金属音。</strong><p>行方不明の人物が残した、不思議な映像。</p><p>その謎を、あなたは解き明かせるか。</p></div>
+    <div class="demo-how"><strong>このゲームの楽しみ方</strong><p>第1章・第2章では、登場人物とともに事件の謎を追います。</p><p>第3章からは、あなた自身が推理に参加。</p><p>選択によって、異なる結末が待っています。</p></div>
     
     <button id="play">はじめる</button>
     <p class="portrait-tip">このゲームはスマートフォンの縦画面でのプレイを推奨しています。</p>
